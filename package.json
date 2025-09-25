@@ -18,7 +18,15 @@
     "schema",
     "test"
   ],
-  "author": "",
+  "author": {
+    "name": "Balakrishna Avulapati",
+    "email": "ba@bavulapati.com",
+    "url": "https://bavulapati.com"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/bavulapati"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/theflashlabs/json-schema-test/issues"
