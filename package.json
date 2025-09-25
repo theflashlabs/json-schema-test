@@ -6,8 +6,8 @@
   "scripts": {
     "test-pass": "mocha spec/*.pass.js -R spec",
     "test-fail": "mocha spec/*.fail.js -R spec | grep ' 0 passing' | grep -q '0'",
-    "test-spec": "npm run test-pass && npm run test-fail",
-    "test": "nyc npm run test-spec"
+    "test-spec": "pnpm run test-pass && pnpm run test-fail",
+    "test": "nyc pnpm run test-spec"
   },
   "repository": {
     "type": "git",
