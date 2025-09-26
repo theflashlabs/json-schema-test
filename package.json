@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test-pass": "mocha spec/*.pass.js -R spec",
-    "test-fail": "mocha spec/*.fail.js -R spec | grep ' 0 passing' | grep -q '0'",
+    "test-pass": "mocha spec/*.pass.ts -R spec",
+    "test-fail": "mocha spec/*.fail.ts -R spec | grep ' 0 passing' | grep -q '0'",
     "test-spec": "pnpm run test-pass && pnpm run test-fail",
     "test": "nyc pnpm run test-spec"
   },

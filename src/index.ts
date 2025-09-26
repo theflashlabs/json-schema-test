@@ -1,3 +1,4 @@
+"use strict";
 import { glob } from "glob";
 import path from "node:path";
 import nodeAssert from "node:assert";

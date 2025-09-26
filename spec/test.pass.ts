@@ -1,12 +1,12 @@
 "use strict";
 
 import jsonSchemaTest from "../dist/index.js";
-import Ajv from "ajv";
-var ajv = new Ajv();
 import assert from "assert";
+import { Ajv } from "ajv";
+const ajv = new Ajv();
 
 describe("passing tests", () => {
-  var hookCalled;
+  let hookCalled: unknown;
 
   beforeEach(() => (hookCalled = undefined));
 
