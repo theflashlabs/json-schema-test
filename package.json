@@ -2,8 +2,10 @@
   "name": "@theflashlabs/json-schema-test",
   "version": "0.0.1",
   "description": "Testing JSON schemas against sample data",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
+    "build": "tsc",
     "test-pass": "mocha spec/*.pass.js -R spec",
     "test-fail": "mocha spec/*.fail.js -R spec | grep ' 0 passing' | grep -q '0'",
     "test-spec": "pnpm run test-pass && pnpm run test-fail",
@@ -33,9 +35,12 @@
   },
   "homepage": "https://github.com/theflashlabs/json-schema-test",
   "dependencies": {
-    "glob": "^11.0.3"
+    "glob": "^11.0.3",
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.5.2",
     "ajv": "^8.17.1",
     "coveralls": "^3.1.1",
     "mocha": "^11.7.2",

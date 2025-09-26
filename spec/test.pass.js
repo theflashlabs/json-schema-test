@@ -1,47 +1,43 @@
-'use strict';
+"use strict";
 
-var jsonSchemaTest = require('..');
-var Ajv = require('ajv');
-var ajv = new Ajv;
-var assert = require('assert');
+import jsonSchemaTest from "../dist/index.js";
+import Ajv from "ajv";
+var ajv = new Ajv();
+import assert from "assert";
 
-describe('passing tests', () => {
+describe("passing tests", () => {
   var hookCalled;
 
-  beforeEach(() => hookCalled = undefined);
+  beforeEach(() => (hookCalled = undefined));
 
   jsonSchemaTest(ajv, {
-    description: 'passing tests',
-    suites: { 'tests': './tests/*.pass.json' },
-    cwd: __dirname,
-    afterEach: () => hookCalled = true
+    description: "passing tests",
+    suites: { tests: "./tests/*.pass.json" },
+    cwd: import.meta.dirname,
+    afterEach: () => (hookCalled = true),
   });
 
   jsonSchemaTest([ajv, ajv], {
-    description: 'passing tests, two validators',
-    suites: { 'tests': './tests/*.json' },
-    cwd: __dirname,
-    skip: [
-      'standard.fail',
-      'standard.fail.async',
-      'standard.pass.async'
-    ],
-    afterEach: () => hookCalled = true
+    description: "passing tests, two validators",
+    suites: { tests: "./tests/*.json" },
+    cwd: import.meta.dirname,
+    skip: ["standard.fail", "standard.fail.async", "standard.pass.async"],
+    afterEach: () => (hookCalled = true),
   });
 
   afterEach(() => assert(hookCalled));
 });
 
 jsonSchemaTest(ajv, {
-  description: 'passing async tests',
+  description: "passing async tests",
   async: true,
-  suites: { 'tests': './tests/*.pass.async.json' },
-  cwd: __dirname
+  suites: { tests: "./tests/*.pass.async.json" },
+  cwd: import.meta.dirname,
 });
 
 jsonSchemaTest([ajv, ajv], {
-  description: 'passing async tests, two validators',
+  description: "passing async tests, two validators",
   async: true,
-  suites: { 'tests': './tests/*.pass.async.json' },
-  cwd: __dirname
+  suites: { tests: "./tests/*.pass.async.json" },
+  cwd: import.meta.dirname,
 });
