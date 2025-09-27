@@ -30,5 +30,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Vitest Coverage
-        run: pnpm coverage
+        run: |
+          pnpm coverage
+          coveralls < coverage/lcov.info
       - run: pnpm test
