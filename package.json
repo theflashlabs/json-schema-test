@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Testing JSON schemas against sample data",
   "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "type": "module",
   "scripts": {
     "clean-dist": "rm -rf ./dist/",
@@ -15,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/theflashlabs/json-schema-test.git"
+    "url": "git+https://github.com/theflashlabs/json-schema-test.git"
   },
   "keywords": [
     "JSON",
