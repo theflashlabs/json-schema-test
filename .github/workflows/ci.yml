@@ -29,4 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+      - name: Vitest Coverage
+        run: pnpm coverage
       - run: pnpm test
