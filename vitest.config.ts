@@ -5,7 +5,7 @@ export default defineConfig({
     coverage: {
       enabled: false,
       provider: "v8",
-      reporter: ["html", "text", "json"],
+      reporter: ["html", "text", "lcov"],
       include: ["src/**"],
       reportOnFailure: true,
       experimentalAstAwareRemapping: true,
