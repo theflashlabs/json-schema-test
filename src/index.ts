@@ -1,11 +1,9 @@
-"use strict";
 import { glob } from "glob";
 import path from "node:path";
 import nodeAssert from "node:assert";
-import type { SuiteAPI, TestAPI } from "vitest";
 
 namespace JsonSchemaTest {
-  type Schema = Record<string, unknown> | boolean;
+  export type Schema = Record<string, unknown> | boolean;
   type ValidationError = any;
 
   export interface Validator {
@@ -15,6 +13,12 @@ namespace JsonSchemaTest {
     ): boolean | Promise<boolean | unknown>;
     errors?: ValidationError[] | null;
   }
+
+  export type testFunc = {
+    (description: string, cb: () => void, timeout?: number): void;
+    skip: (description: string, cb: () => void) => void;
+    only: (description: string, cb: () => void) => void;
+  };
 
   export interface Options {
     description?: string;
@@ -31,8 +35,8 @@ namespace JsonSchemaTest {
     timeout?: number;
     assert?: Assert;
     Promise?: typeof Promise;
-    describe: SuiteAPI;
-    it: TestAPI;
+    describe: testFunc;
+    it: testFunc;
   }
 
   export type Suites = SuitesPath | TestSuite[] | TestSuitePath[];
@@ -56,7 +60,7 @@ namespace JsonSchemaTest {
     tests: Test[];
   }
 
-  interface Test {
+  export interface Test {
     description: string;
     data: unknown;
     valid?: boolean;
@@ -93,17 +97,17 @@ export default function jsonSchemaTest(
   skipOrOnly(opts, opts.describe)(
     opts.description || "JSON schema tests",
     () => {
-      if (opts.timeout) this.timeout(opts.timeout);
       for (const suiteName in opts.suites)
         addTests(
           suiteName,
-          opts.suites[suiteName],
+          opts.suites[suiteName] as JsonSchemaTest.Suites,
           opts,
           assert,
           validators,
           _Promise,
         );
     },
+    opts.timeout,
   );
 }
 
@@ -127,7 +131,7 @@ function addTests(
       };
 
       skipOrOnly(filter, opts.describe)(file.name, async () => {
-        let testSets: JsonSchemaTest.TestGroup[];
+        let testSets: JsonSchemaTest.TestGroup[] = [];
         let testDir: string;
         if ("test" in file) {
           testSets = file.test;
@@ -161,7 +165,7 @@ function addTests(
               });
             else
               await testSchema(
-                testSet.schema,
+                testSet.schema as JsonSchemaTest.Schema,
                 testSet,
                 testDir,
                 assert,
@@ -177,13 +181,13 @@ function addTests(
 }
 
 async function testSchema(
-  schema,
-  testSet,
-  testDir,
-  assert,
-  validators,
-  opts,
-  _Promise,
+  schema: string | JsonSchemaTest.Schema,
+  testSet: JsonSchemaTest.TestGroup,
+  testDir: string,
+  assert: JsonSchemaTest.Assert,
+  validators: JsonSchemaTest.Validator | JsonSchemaTest.Validator[],
+  opts: JsonSchemaTest.Options,
+  _Promise: typeof Promise,
 ) {
   testSet.tests.forEach((test) => {
     skipOrOnly(test, opts.it)(test.description, () => {
@@ -206,16 +210,24 @@ async function testSchema(
   });
 }
 
-async function doTest(validator, test, testDir, schema, assert, opts) {
-  var data;
-  if (test.dataFile) {
+async function doTest(
+  validator: JsonSchemaTest.Validator,
+  test: JsonSchemaTest.Test,
+  testDir: string,
+  schema: string | JsonSchemaTest.Schema,
+  assert: JsonSchemaTest.Assert,
+  opts: JsonSchemaTest.Options,
+) {
+  var data: unknown;
+  if ("dataFile" in test) {
+    // @ts-expect-error
     var dataFile = path.resolve(testDir || "", test.dataFile);
-    data = await import(dataFile);
+    data = (await import(dataFile)).default;
   } else {
     data = test.data;
   }
 
-  var valid = validator.validate(schema, data);
+  var valid = validator.validate(schema as JsonSchemaTest.Schema, data);
   if (
     opts.async &&
     typeof valid == "object" &&
@@ -231,10 +243,10 @@ async function doTest(validator, test, testDir, schema, assert, opts) {
       },
     );
   } else {
-    testResults(valid, validator.errors);
+    testResults(valid, validator.errors as any[]);
   }
 
-  function testResults(valid, errors) {
+  function testResults(valid: unknown, errors: string | any[] | null) {
     if (opts.asyncValid == "data" && test.valid === true)
       valid = valid === data;
     var passed = valid === test.valid;
@@ -248,14 +260,31 @@ async function doTest(validator, test, testDir, schema, assert, opts) {
         validator.errors,
       );
     if (valid) assert(!errors || errors.length == 0);
-    else assert(errors.length > 0);
+    else assert(errors != null && errors?.length > 0);
 
-    suiteHooks(passed, validator, schema, data, test, opts, valid, errors);
+    suiteHooks(
+      passed,
+      validator,
+      schema,
+      data,
+      test,
+      opts,
+      valid,
+      errors as string | any[],
+    );
     assert.equal(valid, test.valid);
   }
 }
 
-function testException(err, assert, validator, test, schema, data, opts) {
+function testException(
+  err: { message: unknown },
+  assert: JsonSchemaTest.Assert,
+  validator: JsonSchemaTest.Validator,
+  test: JsonSchemaTest.Test,
+  schema: string | JsonSchemaTest.Schema,
+  data: unknown,
+  opts: JsonSchemaTest.Options,
+) {
   var passed = err.message == test.error;
   if (!passed && opts.log !== false)
     console.log(
@@ -274,24 +303,24 @@ function testException(err, assert, validator, test, schema, data, opts) {
 }
 
 function suiteHooks(
-  passed,
-  validator,
-  schema,
-  data,
-  test,
-  opts,
-  valid?,
-  errors?,
+  passed: boolean,
+  validator: JsonSchemaTest.Validator,
+  schema: string | JsonSchemaTest.Schema,
+  data: unknown,
+  test: JsonSchemaTest.Test,
+  opts: JsonSchemaTest.Options,
+  valid?: unknown,
+  errors?: string | any[],
 ) {
   var result = {
     passed: passed,
     validator: validator,
-    schema: schema,
+    schema: schema as JsonSchemaTest.Schema,
     data: data,
-    valid: valid,
-    expected: test.valid,
+    valid: valid as boolean,
+    expected: test.valid as boolean,
     expectedError: test.error,
-    errors: errors,
+    errors: errors as any[],
   };
 
   if (opts.afterEach) opts.afterEach(result);
@@ -299,24 +328,31 @@ function suiteHooks(
 }
 
 function getTestFiles(testsPath: string, opts: JsonSchemaTest.Options) {
-  var files = glob.sync(testsPath, { cwd: opts.cwd });
+  var files = glob.sync(testsPath, { cwd: opts.cwd as string });
   return files.map((file) => {
     var match = file.match(/([\w\-_]+\/)[\w\-_]+\.json/);
     var folder = match ? match[1] : "";
     if (opts.hideFolder && folder == opts.hideFolder) folder = "";
     return {
-      path: path.join(opts.cwd, file),
+      path: path.join(opts.cwd as string, file),
       name: folder + path.basename(file, ".json"),
     } as JsonSchemaTest.TestSuitePath;
   });
 }
 
-function getFileFilter(file, opts, property): boolean {
+function getFileFilter(
+  file: JsonSchemaTest.TestSuite | JsonSchemaTest.TestSuitePath,
+  opts: JsonSchemaTest.Options,
+  property: keyof JsonSchemaTest.Options,
+): boolean {
   var filter = opts[property];
   return Array.isArray(filter) && filter.indexOf(file.name) >= 0;
 }
 
-function skipOrOnly(filter: Partial<JsonSchemaTest.Options>, func: SuiteAPI) {
+function skipOrOnly(
+  filter: Partial<JsonSchemaTest.Options>,
+  func: JsonSchemaTest.testFunc,
+) {
   return filter.only === true
     ? func.only
     : filter.skip === true
