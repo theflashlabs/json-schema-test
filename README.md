@@ -2,7 +2,7 @@
 
 Testing JSON schemas against sample data
 
-[![Build Status](https://github.com/theflashlabs/json-schema-test/actions/workflows/ci.yml/badge.svg)](https://github.com/theflashlabs/json-schema-test/actions?query=workflow%ci)
+[![Build Status](https://github.com/theflashlabs/json-schema-test/actions/workflows/ci.yml/badge.svg)](https://github.com/theflashlabs/json-schema-test/actions/workflows/ci.yml)
 [![npm version](https://badge.fury.io/js/json-schema-test.svg)](http://badge.fury.io/js/json-schema-test)
 [![Coverage Status](https://coveralls.io/repos/github/MailOnline/json-schema-test/badge.svg?branch=master)](https://coveralls.io/github/MailOnline/json-schema-test?branch=master)
 
