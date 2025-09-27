@@ -1,32 +1,33 @@
 # json-schema-test
+
 Testing JSON schemas against sample data
 
-[![Build Status](https://travis-ci.org/MailOnline/json-schema-test.svg?branch=master)](https://travis-ci.org/MailOnline/json-schema-test)
-[![npm version](https://badge.fury.io/js/json-schema-test.svg)](http://badge.fury.io/js/json-schema-test)
-[![Coverage Status](https://coveralls.io/repos/github/MailOnline/json-schema-test/badge.svg?branch=master)](https://coveralls.io/github/MailOnline/json-schema-test?branch=master)
-
+[![Build Status](https://github.com/theflashlabs/json-schema-test/actions/workflows/ci.yml/badge.svg)](https://github.com/theflashlabs/json-schema-test/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/@theflashlabs%2Fjson-schema-test.svg)](https://badge.fury.io/js/@theflashlabs%2Fjson-schema-test)
+[![Coverage Status](https://coveralls.io/repos/github/theflashlabs/json-schema-test/badge.svg?branch=main)](https://coveralls.io/github/theflashlabs/json-schema-test?branch=main)
 
 ## Install
 
 ```
-npm install json-schema-test
+npm install @theflashlabs/json-schema-test
 ```
-
 
 ## Usage
 
-The module is designed to be used inside mocha test (global describe etc. should be avaliable).
+The module is designed to be used with test frameworks like vitest (describe, test/it should be avaliable).
 
 Example usage:
 
 ```javascript
-var jsonSchemaTest = require('json-schema-test');
+import { describe, it, assert } from "vitest";
+var jsonSchemaTest = require("json-schema-test");
 
-jsonSchemaTest([ ajv, tv4 ], {
-  description: 'My schema tests',
+jsonSchemaTest([ajv, tv4], {
+  description: "My schema tests",
   suites: {
-    'JSON-Schema tests draft4': './JSON-Schema-Test-Suite/tests/draft4/{**/,}*.json',
-    'Advanced schema tests': './tests/{**/,}*.json'
+    "JSON-Schema tests draft4":
+      "./JSON-Schema-Test-Suite/tests/draft4/{**/,}*.json",
+    "Advanced schema tests": "./tests/{**/,}*.json",
   },
   // async: true,
   // asyncValid: true, // or 'data', deafult is true
@@ -36,9 +37,11 @@ jsonSchemaTest([ ajv, tv4 ], {
   only: ONLY_FILES,
   skip: SKIP_FILES,
   cwd: __dirname,
-  hideFolder: 'draft4/',
+  hideFolder: "draft4/",
   timeout: 10000,
-  assert: chai.assert
+  assert: assert,
+  describe,
+  it,
 });
 
 function afterEachFunc(result) {
@@ -56,7 +59,6 @@ function afterEachFunc(result) {
   // If result.passed is false the test will fails after this function returns
 }
 ```
-
 
 ## Test files format
 
@@ -97,13 +99,11 @@ Each test file should have this format:
 
 The schema for the test file is in [test_file_schema.json](https://github.com/MailOnline/json-schema-test/blob/master/test_file_schema.json).
 
-
 ## Parameters
 
 ```
 jsonSchemaTest(valdator, options)
 ```
-
 
 ##### validator
 
@@ -112,7 +112,6 @@ Validator instance to be used or array of validator instances (in which case eac
 Validator should have `validate(schema, data)` method and after validation should have errors property (array in case of failure, empty array or null in case of success).
 
 If validator instance has different API you can use [json-schema-consolidate](https://github.com/epoberezkin/json-schema-consolidate) as adapter (or just use some simple adaptor function).
-
 
 ##### options
 
@@ -134,8 +133,23 @@ If validator instance has different API you can use [json-schema-consolidate](ht
 - _timeout_ - mocha test timeout in ms, 2000 by default.
 - _assert_ - optional assertions library. If not specified `assert` from nodejs will be used that can be undesired when used in the browser.
 - _Promise_ - Promise class used by validator in async mode. Only used if `async` option is true.
-
+- describe - the function that will be used to define the test suite - collection of tests. With Vitest, it is `describe`.
+- it - the function that will be used to define a test. With Vitest, it is `it`.
 
 ## License
 
-[MIT](https://github.com/MailOnline/json-schema-test/blob/master/LICENSE)
+[MIT](https://github.com/theflashlabs/json-schema-test/blob/main/LICENSE)
+
+## Thanks to Author and contributors of MailOnline/json-schema-test
+
+Thanks to the original author and all the contributors of [json-schema-test](https://github.com/MailOnline/json-schema-test).
+
+## <a name="sponsors"></a>Please [sponsor json-schema-test development](https://github.com/sponsors/bavulapati)
+
+Your support is very important - the funds will be used to develop and maintain json-schema-test.
+
+Please sponsor Ajv-Plus via:
+
+- [GitHub sponsors page](https://github.com/sponsors/bavulapati)
+
+Thank you.
