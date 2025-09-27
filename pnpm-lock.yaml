@@ -11,9 +11,6 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.0.3
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
     devDependencies:
       '@types/node':
         specifier: ^24.5.2
@@ -33,6 +30,9 @@ importers:
       pre-commit:
         specifier: ^1.0.10
         version: 1.2.2
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.5.2)(@vitest/ui@3.2.4)
