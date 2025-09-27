@@ -2,90 +2,85 @@ import { glob } from "glob";
 import path from "node:path";
 import nodeAssert from "node:assert";
 
-namespace JsonSchemaTest {
-  export type Schema = Record<string, unknown> | boolean;
-  type ValidationError = any;
+type Schema = Record<string, unknown> | boolean;
+type ValidationError = any;
 
-  export interface Validator {
-    validate(
-      schema: Schema,
-      data: unknown,
-    ): boolean | Promise<boolean | unknown>;
-    errors?: ValidationError[] | null;
-  }
+export interface Validator {
+  validate(schema: Schema, data: unknown): boolean | Promise<boolean | unknown>;
+  errors?: ValidationError[] | null;
+}
 
-  export type testFunc = {
-    (description: string, cb: () => void, timeout?: number): void;
-    skip: (description: string, cb: () => void) => void;
-    only: (description: string, cb: () => void) => void;
-  };
+type testFunc = {
+  (description: string, cb: () => void, timeout?: number): void;
+  skip: (description: string, cb: () => void) => void;
+  only: (description: string, cb: () => void) => void;
+};
 
-  export interface Options {
-    description?: string;
-    suites: Record<string, Suites>;
-    async?: boolean;
-    asyncValid?: "data";
-    afterEach?: (res: TestResult) => void;
-    afterError?: (res: TestResult) => void; // res.passed === false
-    log?: boolean; // pass false to prevent logging
-    only?: boolean | string[]; // names of TestSuite or filenames or true to perform only these tests
-    skip?: boolean | string[]; // skip all or some tests
-    cwd?: string; // working dir, pass __dirname or import.meta.dirname to use paths relative to the module
-    hideFolder?: string;
-    timeout?: number;
-    assert?: Assert;
-    Promise?: typeof Promise;
-    describe: testFunc;
-    it: testFunc;
-  }
+export interface Options {
+  description?: string;
+  suites: Record<string, Suites>;
+  async?: boolean;
+  asyncValid?: "data";
+  afterEach?: (res: TestResult) => void;
+  afterError?: (res: TestResult) => void; // res.passed === false
+  log?: boolean; // pass false to prevent logging
+  only?: boolean | string[]; // names of TestSuite or filenames or true to perform only these tests
+  skip?: boolean | string[]; // skip all or some tests
+  cwd?: string; // working dir, pass __dirname or import.meta.dirname to use paths relative to the module
+  hideFolder?: string;
+  timeout?: number;
+  assert?: Assert;
+  Promise?: typeof Promise;
+  describe: testFunc;
+  it: testFunc;
+}
 
-  export type Suites = SuitesPath | TestSuite[] | TestSuitePath[];
+type Suites = SuitesPath | TestSuite[] | TestSuitePath[];
 
-  type SuitesPath = string; // glob pattern
+type SuitesPath = string; // glob pattern
 
-  export interface TestSuite {
-    name: string;
-    test: TestGroup[];
-  }
+interface TestSuite {
+  name: string;
+  test: TestGroup[];
+}
 
-  export interface TestSuitePath {
-    name: string;
-    path: string;
-  }
+interface TestSuitePath {
+  name: string;
+  path: string;
+}
 
-  export interface TestGroup {
-    description: string;
-    schema?: Schema | string;
-    schemas?: (Schema | string)[];
-    tests: Test[];
-  }
+interface TestGroup {
+  description: string;
+  schema?: Schema | string;
+  schemas?: (Schema | string)[];
+  tests: Test[];
+}
 
-  export interface Test {
-    description: string;
-    data: unknown;
-    valid?: boolean;
-    error?: string;
-  }
+interface Test {
+  description: string;
+  data: unknown;
+  valid?: boolean;
+  error?: string;
+}
 
-  interface TestResult {
-    validator: Validator;
-    schema: Schema;
-    data: unknown;
-    valid: boolean;
-    expected: boolean;
-    errors: ValidationError[] | null; // validation errors if valid === false
-    passed: boolean; // true if valid === expected
-  }
+export interface TestResult {
+  validator: Validator;
+  schema: Schema;
+  data: unknown;
+  valid: boolean;
+  expected: boolean;
+  errors: ValidationError[] | null; // validation errors if valid === false
+  passed: boolean; // true if valid === expected
+}
 
-  export interface Assert {
-    (ok: boolean): void;
-    equal: (x: unknown, y: unknown) => void;
-  }
+interface Assert {
+  (ok: boolean): void;
+  equal: (x: unknown, y: unknown) => void;
 }
 
 export default function jsonSchemaTest(
-  validators: JsonSchemaTest.Validator | JsonSchemaTest.Validator[],
-  opts: JsonSchemaTest.Options,
+  validators: Validator | Validator[],
+  opts: Options,
 ) {
   const assert = opts.assert || nodeAssert;
   let _Promise: typeof Promise;
@@ -100,7 +95,7 @@ export default function jsonSchemaTest(
       for (const suiteName in opts.suites)
         addTests(
           suiteName,
-          opts.suites[suiteName] as JsonSchemaTest.Suites,
+          opts.suites[suiteName] as Suites,
           opts,
           assert,
           validators,
@@ -113,15 +108,15 @@ export default function jsonSchemaTest(
 
 function addTests(
   suiteName: string,
-  filesOrPath: JsonSchemaTest.Suites,
-  opts: JsonSchemaTest.Options,
-  assert: JsonSchemaTest.Assert,
-  validators: JsonSchemaTest.Validator | JsonSchemaTest.Validator[],
+  filesOrPath: Suites,
+  opts: Options,
+  assert: Assert,
+  validators: Validator | Validator[],
   _Promise: typeof Promise,
 ) {
   opts.describe(suiteName, () => {
     const files = Array.isArray(filesOrPath)
-      ? (filesOrPath as JsonSchemaTest.TestSuite[])
+      ? (filesOrPath as TestSuite[])
       : getTestFiles(filesOrPath, opts);
 
     for (const file of files) {
@@ -131,7 +126,7 @@ function addTests(
       };
 
       skipOrOnly(filter, opts.describe)(file.name, async () => {
-        let testSets: JsonSchemaTest.TestGroup[] = [];
+        let testSets: TestGroup[] = [];
         let testDir: string;
         if ("test" in file) {
           testSets = file.test;
@@ -142,7 +137,7 @@ function addTests(
             await import(testPath, {
               with: { type: "json" },
             })
-          ).default as JsonSchemaTest.TestGroup[];
+          ).default as TestGroup[];
         }
         for (const testSet of testSets) {
           skipOrOnly(testSet, opts.describe)(testSet.description, async () => {
@@ -165,7 +160,7 @@ function addTests(
               });
             else
               await testSchema(
-                testSet.schema as JsonSchemaTest.Schema,
+                testSet.schema as Schema,
                 testSet,
                 testDir,
                 assert,
@@ -181,12 +176,12 @@ function addTests(
 }
 
 async function testSchema(
-  schema: string | JsonSchemaTest.Schema,
-  testSet: JsonSchemaTest.TestGroup,
+  schema: string | Schema,
+  testSet: TestGroup,
   testDir: string,
-  assert: JsonSchemaTest.Assert,
-  validators: JsonSchemaTest.Validator | JsonSchemaTest.Validator[],
-  opts: JsonSchemaTest.Options,
+  assert: Assert,
+  validators: Validator | Validator[],
+  opts: Options,
   _Promise: typeof Promise,
 ) {
   testSet.tests.forEach((test) => {
@@ -211,12 +206,12 @@ async function testSchema(
 }
 
 async function doTest(
-  validator: JsonSchemaTest.Validator,
-  test: JsonSchemaTest.Test,
+  validator: Validator,
+  test: Test,
   testDir: string,
-  schema: string | JsonSchemaTest.Schema,
-  assert: JsonSchemaTest.Assert,
-  opts: JsonSchemaTest.Options,
+  schema: string | Schema,
+  assert: Assert,
+  opts: Options,
 ) {
   var data: unknown;
   if ("dataFile" in test) {
@@ -227,7 +222,7 @@ async function doTest(
     data = test.data;
   }
 
-  var valid = validator.validate(schema as JsonSchemaTest.Schema, data);
+  var valid = validator.validate(schema as Schema, data);
   if (
     opts.async &&
     typeof valid == "object" &&
@@ -278,12 +273,12 @@ async function doTest(
 
 function testException(
   err: { message: unknown },
-  assert: JsonSchemaTest.Assert,
-  validator: JsonSchemaTest.Validator,
-  test: JsonSchemaTest.Test,
-  schema: string | JsonSchemaTest.Schema,
+  assert: Assert,
+  validator: Validator,
+  test: Test,
+  schema: string | Schema,
   data: unknown,
-  opts: JsonSchemaTest.Options,
+  opts: Options,
 ) {
   var passed = err.message == test.error;
   if (!passed && opts.log !== false)
@@ -304,18 +299,18 @@ function testException(
 
 function suiteHooks(
   passed: boolean,
-  validator: JsonSchemaTest.Validator,
-  schema: string | JsonSchemaTest.Schema,
+  validator: Validator,
+  schema: string | Schema,
   data: unknown,
-  test: JsonSchemaTest.Test,
-  opts: JsonSchemaTest.Options,
+  test: Test,
+  opts: Options,
   valid?: unknown,
   errors?: string | any[],
 ) {
   var result = {
     passed: passed,
     validator: validator,
-    schema: schema as JsonSchemaTest.Schema,
+    schema: schema as Schema,
     data: data,
     valid: valid as boolean,
     expected: test.valid as boolean,
@@ -327,7 +322,7 @@ function suiteHooks(
   if (opts.afterError && !passed) opts.afterError(result);
 }
 
-function getTestFiles(testsPath: string, opts: JsonSchemaTest.Options) {
+function getTestFiles(testsPath: string, opts: Options) {
   var files = glob.sync(testsPath, { cwd: opts.cwd as string });
   return files.map((file) => {
     var match = file.match(/([\w\-_]+\/)[\w\-_]+\.json/);
@@ -336,23 +331,20 @@ function getTestFiles(testsPath: string, opts: JsonSchemaTest.Options) {
     return {
       path: path.join(opts.cwd as string, file),
       name: folder + path.basename(file, ".json"),
-    } as JsonSchemaTest.TestSuitePath;
+    } as TestSuitePath;
   });
 }
 
 function getFileFilter(
-  file: JsonSchemaTest.TestSuite | JsonSchemaTest.TestSuitePath,
-  opts: JsonSchemaTest.Options,
-  property: keyof JsonSchemaTest.Options,
+  file: TestSuite | TestSuitePath,
+  opts: Options,
+  property: keyof Options,
 ): boolean {
   var filter = opts[property];
   return Array.isArray(filter) && filter.indexOf(file.name) >= 0;
 }
 
-function skipOrOnly(
-  filter: Partial<JsonSchemaTest.Options>,
-  func: JsonSchemaTest.testFunc,
-) {
+function skipOrOnly(filter: Partial<Options>, func: testFunc) {
   return filter.only === true
     ? func.only
     : filter.skip === true
