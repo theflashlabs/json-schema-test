@@ -1,6 +1,6 @@
 import jsonSchemaTest from "../src/index.ts";
 import assert from "assert";
-import { Ajv } from "ajv";
+import { Ajv } from "@theflashlabs/ajv-plus";
 import { describe, beforeEach, afterEach, it } from "vitest";
 const ajv = new Ajv();
 
