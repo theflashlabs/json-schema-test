@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, it } from "vitest";
 import jsonSchemaTest from "../src/index.ts";
 import assert from "assert";
-import { Ajv } from "ajv";
+import { Ajv } from "@theflashlabs/ajv-plus";
 const ajv = new Ajv();
 
 describe("failing tests", () => {
