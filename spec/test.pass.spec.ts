@@ -1,8 +1,7 @@
-"use strict";
-
-import jsonSchemaTest from "../dist/index.js";
+import jsonSchemaTest from "../src/index.ts";
 import assert from "assert";
 import { Ajv } from "ajv";
+import { describe, beforeEach, afterEach, it } from "vitest";
 const ajv = new Ajv();
 
 describe("passing tests", () => {
@@ -15,6 +14,8 @@ describe("passing tests", () => {
     suites: { tests: "./tests/*.pass.json" },
     cwd: import.meta.dirname,
     afterEach: () => (hookCalled = true),
+    describe,
+    it,
   });
 
   jsonSchemaTest([ajv, ajv], {
@@ -23,6 +24,8 @@ describe("passing tests", () => {
     cwd: import.meta.dirname,
     skip: ["standard.fail", "standard.fail.async", "standard.pass.async"],
     afterEach: () => (hookCalled = true),
+    describe,
+    it,
   });
 
   afterEach(() => assert(hookCalled));
@@ -33,6 +36,8 @@ jsonSchemaTest(ajv, {
   async: true,
   suites: { tests: "./tests/*.pass.async.json" },
   cwd: import.meta.dirname,
+  describe,
+  it,
 });
 
 jsonSchemaTest([ajv, ajv], {
@@ -40,4 +45,6 @@ jsonSchemaTest([ajv, ajv], {
   async: true,
   suites: { tests: "./tests/*.pass.async.json" },
   cwd: import.meta.dirname,
+  describe,
+  it,
 });

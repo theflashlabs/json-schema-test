@@ -1,5 +1,5 @@
 {
-  "include": ["./src"],
+  "include": ["./src/"],
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
@@ -10,7 +10,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": ["mocha"],
+    "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -32,6 +32,8 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
+    // "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
 
     // Recommended Options
     // "strict": true,
